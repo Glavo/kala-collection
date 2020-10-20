@@ -36,6 +36,11 @@ final class Views {
         }
 
         @Override
+        public final boolean sameElements(@NotNull Iterable<?> other, boolean identity) {
+            return collection.sameElements(other, identity);
+        }
+
+        @Override
         public final E max() {
             return collection.max();
         }

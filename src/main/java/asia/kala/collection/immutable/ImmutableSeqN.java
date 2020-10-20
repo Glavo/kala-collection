@@ -35,7 +35,7 @@ abstract class ImmutableSeqN<E> extends AbstractImmutableSeq<E> implements Index
 
         ImmutableSeqN<?> other = (ImmutableSeqN<?>) obj;
 
-        return size() == other.size() && this.sameElements(other);
+        return sizeEquals(other) && this.sameElements(other);
     }
 }
 
