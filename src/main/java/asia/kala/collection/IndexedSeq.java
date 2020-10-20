@@ -95,6 +95,16 @@ public interface IndexedSeq<@Covariant E> extends Seq<E>, RandomAccess {
     }
 
     @Override
+    default E first() {
+        return get(0);
+    }
+
+    @Override
+    default E last() {
+        return get(size() - 1);
+    }
+
+    @Override
     default int indexOf(Object value) {
         final int size = size();
 

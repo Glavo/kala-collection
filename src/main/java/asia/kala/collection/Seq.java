@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Range;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Predicate;
 
@@ -112,6 +113,22 @@ public interface Seq<@Covariant E> extends Collection<E> {
             }
         }
         return Option.none();
+    }
+
+    default E first() {
+        return iterator().next();
+    }
+
+    default E last() {
+        Iterator<E> it = iterator();
+        if (!it.hasNext()) {
+            throw new NoSuchElementException();
+        }
+        E last = null;
+        while (it.hasNext()) {
+            last = it.next();
+        }
+        return last;
     }
 
     @Nullable

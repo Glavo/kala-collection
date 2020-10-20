@@ -176,6 +176,25 @@ public class ArraySeq<E> extends AbstractSeq<E> implements Seq<E>, IndexedSeq<E>
     }
 
     @Override
+    public final E first() {
+        try {
+            return (E) array[0];
+        } catch (IndexOutOfBoundsException ignored) {
+            throw new NoSuchElementException();
+        }
+    }
+
+    @Override
+    public final E last() {
+        final Object[] array = this.array;
+        final int size = array.length;
+        if (size == 0) {
+            throw new NoSuchElementException();
+        }
+        return (E) array[size - 1];
+    }
+
+    @Override
     public final int indexOf(Object value) {
         return JavaArray.indexOf(array, value);
     }

@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 @ApiStatus.Internal
@@ -62,6 +63,26 @@ public final class ImmutableInternal {
             }
 
             return Option.some(first.get(index));
+        }
+
+        @Override
+        public final E first() {
+            ImmutableList.MutableCons<E> first = this.first;
+            if (first == null) {
+                throw new NoSuchElementException();
+            } else {
+                return first.head;
+            }
+        }
+
+        @Override
+        public final E last() {
+            ImmutableList.MutableCons<E> last = this.last;
+            if (last == null) {
+                throw new NoSuchElementException();
+            } else {
+                return last.head;
+            }
         }
 
         @Override

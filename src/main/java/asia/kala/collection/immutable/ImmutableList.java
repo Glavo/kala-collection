@@ -154,11 +154,11 @@ public abstract class ImmutableList<@Covariant E> extends AbstractImmutableSeq<E
         return ImmutableList.<E>factory().fill(n, value);
     }
 
-    public static <E> ImmutableList<E>  fill(int n, @NotNull Supplier<? extends E> supplier) {
+    public static <E> ImmutableList<E> fill(int n, @NotNull Supplier<? extends E> supplier) {
         return ImmutableList.<E>factory().fill(n, supplier);
     }
 
-    public static <E> ImmutableList<E>  fill(int n, @NotNull IntFunction<? extends E> supplier) {
+    public static <E> ImmutableList<E> fill(int n, @NotNull IntFunction<? extends E> supplier) {
         return ImmutableList.<E>factory().fill(n, supplier);
     }
 
@@ -182,6 +182,12 @@ public abstract class ImmutableList<@Covariant E> extends AbstractImmutableSeq<E
     }
 
     //region ImmutableSeq members
+
+
+    @Override
+    public final E first() {
+        return head();
+    }
 
     @NotNull
     @Override
@@ -408,6 +414,11 @@ public abstract class ImmutableList<@Covariant E> extends AbstractImmutableSeq<E
             return Option.none();
         }
 
+        @Override
+        public final Object last() {
+            throw new NoSuchElementException();
+        }
+
         //region Traversable members
 
         @NotNull
@@ -541,8 +552,6 @@ public abstract class ImmutableList<@Covariant E> extends AbstractImmutableSeq<E
         private ImmutableList<? extends E> list;
 
         Itr(@NotNull ImmutableList<? extends E> list) {
-            assert list != null;
-
             this.list = list;
         }
 
