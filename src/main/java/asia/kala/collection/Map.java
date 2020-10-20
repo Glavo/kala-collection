@@ -7,6 +7,8 @@ import java.util.function.BiConsumer;
 
 public interface Map<K, V> {
 
+    V get(K key);
+
     void forEach(@NotNull BiConsumer<? super K, ? super V> consumer);
 
     default <Ex extends Throwable> void forEachChecked(

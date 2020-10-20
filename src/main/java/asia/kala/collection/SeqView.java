@@ -35,6 +35,11 @@ public interface SeqView<@Covariant E> extends Seq<E>, View<E> {
     }
 
     @NotNull
+    default SeqView<E> dropLast(int n) {
+        return new SeqViews.DropLast<>(this, n);
+    }
+
+    @NotNull
     default SeqView<E> dropWhile(@NotNull Predicate<? super E> predicate) {
         Objects.requireNonNull(predicate);
 
@@ -44,6 +49,11 @@ public interface SeqView<@Covariant E> extends Seq<E>, View<E> {
     @NotNull
     default SeqView<E> take(int n) {
         return new SeqViews.Take<>(this, n);
+    }
+
+    @NotNull
+    default SeqView<E> takeLast(int n) {
+        return new SeqViews.TakeLast<>(this, n);
     }
 
     @NotNull
@@ -104,6 +114,11 @@ public interface SeqView<@Covariant E> extends Seq<E>, View<E> {
         Objects.requireNonNull(comparator);
 
         return new SeqViews.Sorted<>(this, comparator);
+    }
+
+    @NotNull
+    default SeqView<E> reversed() {
+        return new SeqViews.Reversed<>(this);
     }
 
     //region View members

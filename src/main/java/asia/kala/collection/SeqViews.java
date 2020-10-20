@@ -1,15 +1,18 @@
 package asia.kala.collection;
 
 import asia.kala.LazyValue;
+import asia.kala.collection.mutable.ArrayBuffer;
 import asia.kala.control.Option;
 import asia.kala.annotations.Covariant;
 import asia.kala.function.IndexedConsumer;
 import asia.kala.iterator.Iterators;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Range;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.function.*;
 
 final class SeqViews {
@@ -175,6 +178,48 @@ final class SeqViews {
         }
     }
 
+    static class DropLast<@Covariant E> extends AbstractSeqView<E> {
+        @NotNull
+        protected final SeqView<E> source;
+
+
+        private final int n;
+        private final int len;
+
+        DropLast(@NotNull SeqView<E> source, int n) {
+            this.source = source;
+            this.n = Integer.max(n, 0);
+            this.len = Integer.max(source.size() - this.n, 0);
+        }
+
+        @Override
+        public final E get(@Range(from = 0, to = Integer.MAX_VALUE) int index) {
+            if (index < 0 || index >= len) {
+                throw new IndexOutOfBoundsException();
+            }
+            return source.get(index);
+        }
+
+        @Override
+        public final int size() {
+            return len;
+        }
+
+        @Override
+        public final int knownSize() {
+            return len;
+        }
+
+        @NotNull
+        @Override
+        public final Iterator<E> iterator() {
+            if (n <= 0) {
+                return source.iterator();
+            }
+            return Iterators.take(source.iterator(), len);
+        }
+    }
+
     static class DropWhile<@Covariant E> extends AbstractSeqView<E> {
         @NotNull
         private final SeqView<E> source;
@@ -204,8 +249,6 @@ final class SeqViews {
         private final int n;
 
         Take(@NotNull SeqView<E> source, int n) {
-            assert source != null;
-
             this.source = source;
             this.n = n;
         }
@@ -223,6 +266,107 @@ final class SeqViews {
         @Override
         public final Iterator<E> iterator() {
             return Iterators.take(source.iterator(), n);
+        }
+    }
+
+    static class TakeLast<@Covariant E> extends AbstractSeqView<E> {
+        @NotNull
+        protected final SeqView<E> source;
+
+
+        private final int n;
+        private final int delta;
+
+        TakeLast(@NotNull SeqView<E> source, int n) {
+            this.source = source;
+            this.n = Integer.max(n, 0);
+            this.delta = Integer.max(0, source.size() - Integer.max(0, n));
+        }
+
+        @Override
+        public final E get(@Range(from = 0, to = Integer.MAX_VALUE) int index) {
+            return source.get(index + delta);
+        }
+
+        @Override
+        public final int size() {
+            return source.size() - delta;
+        }
+
+        @Override
+        public final int knownSize() {
+            int kn = source.knownSize();
+            return kn >= 0 ? Integer.min(kn, n) : -1;
+        }
+
+        @NotNull
+        @Override
+        public final Iterator<E> iterator() {
+            int k = source.knownSize();
+            if (k == 0 || n <= 0) {
+                return Iterators.empty();
+            }
+            if (n == Integer.MAX_VALUE) {
+                return source.iterator();
+            }
+            if (k > 0) {
+                return Iterators.drop(source.iterator(), Integer.max(k - n, 0));
+            }
+            return new AbstractIterator<E>() {
+                Iterator<E> it = source.iterator();
+                int len = -1;
+                int pos = 0;
+                ArrayBuffer<E> buf = null;
+
+                private void init() {
+                    if (buf != null) {
+                        return;
+                    }
+                    buf = new ArrayBuffer<>(Integer.min(n, 256));
+                    len = 0;
+                    while (it.hasNext()) {
+                        E next = it.next();
+                        if (pos >= buf.size()) {
+                            buf.append(next);
+                        } else {
+                            buf.set(pos, next);
+                        }
+                        if (++pos == n) {
+                            pos = 0;
+                        }
+                        ++len;
+                    }
+                    it = null;
+                    if (len > n) {
+                        len = n;
+                    }
+                    pos = pos - len;
+                    if (pos < 0) {
+                        pos += n;
+                    }
+                }
+
+                @Override
+                public final boolean hasNext() {
+                    init();
+                    return len > 0;
+                }
+
+                @Override
+                public final E next() {
+                    init();
+                    if (len == 0) {
+                        throw new NoSuchElementException();
+                    }
+                    E v = buf.get(pos);
+                    ++pos;
+                    if (pos == n) {
+                        pos = 0;
+                    }
+                    --len;
+                    return v;
+                }
+            };
         }
     }
 
@@ -332,6 +476,54 @@ final class SeqViews {
         @Override
         public final Iterator<E> iterator() {
             return Iterators.appended(source.iterator(), value);
+        }
+    }
+
+    static class Reversed<@Covariant E> extends AbstractSeqView<E> {
+        @NotNull
+        protected final SeqView<E> source;
+
+        Reversed(@NotNull SeqView<E> source) {
+            this.source = source;
+        }
+
+        @Override
+        public final E get(@Range(from = 0, to = Integer.MAX_VALUE) int index) {
+            return source.get(size() - 1 - index);
+        }
+
+        @Override
+        public final int size() {
+            return source.size();
+        }
+
+        @Override
+        @Range(from = -1L, to = 2147483647L)
+        public final int knownSize() {
+            return source.knownSize();
+        }
+
+        @Override
+        public final boolean isEmpty() {
+            return source.isEmpty();
+        }
+
+        @NotNull
+        @Override
+        public final SeqView<E> reversed() {
+            return source;
+        }
+
+        @NotNull
+        @Override
+        public final Iterator<E> reverseIterator() {
+            return source.iterator();
+        }
+
+        @NotNull
+        @Override
+        public final Iterator<E> iterator() {
+            return source.reverseIterator();
         }
     }
 

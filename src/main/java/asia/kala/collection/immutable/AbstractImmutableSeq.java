@@ -51,9 +51,6 @@ public abstract class AbstractImmutableSeq<@Covariant E> extends AbstractImmutab
             int n,
             @NotNull CollectionFactory<? super E, Builder, ? extends T> factory
     ) {
-        assert seq != null;
-        assert factory != null;
-
         Builder builder = factory.newBuilder();
 
         int s = seq.knownSize();
@@ -66,6 +63,14 @@ public abstract class AbstractImmutableSeq<@Covariant E> extends AbstractImmutab
             factory.addToBuilder(builder, e);
         }
         return factory.build(builder);
+    }
+
+    static <E, T extends ImmutableSeq<? extends E>, Builder> T dropLast(
+            @NotNull ImmutableSeq<? extends E> seq,
+            int n,
+            @NotNull CollectionFactory<? super E, Builder, ? extends T> factory
+    ) {
+        return factory.from(seq.view().dropLast(n)); // TODO
     }
 
     static <E, T extends ImmutableSeq<? extends E>, Builder> T dropWhile(
@@ -90,9 +95,6 @@ public abstract class AbstractImmutableSeq<@Covariant E> extends AbstractImmutab
             int n,
             @NotNull CollectionFactory<? super E, Builder, ? extends T> factory
     ) {
-        assert seq != null;
-        assert factory != null;
-
         if (n <= 0) {
             return factory.empty();
         }
@@ -113,6 +115,17 @@ public abstract class AbstractImmutableSeq<@Covariant E> extends AbstractImmutab
         }
 
         return factory.build(builder);
+    }
+
+    static <E, T extends ImmutableSeq<? extends E>, Builder> T takeLast(
+            @NotNull ImmutableSeq<? extends E> seq,
+            int n,
+            @NotNull CollectionFactory<? super E, Builder, ? extends T> factory
+    ) {
+        if (n <= 0) {
+            return factory.empty();
+        }
+        return factory.from(seq.view().takeLast(n)); // TODO
     }
 
     static <E, T extends ImmutableSeq<? extends E>, Builder> T takeWhile(
@@ -284,15 +297,22 @@ public abstract class AbstractImmutableSeq<@Covariant E> extends AbstractImmutab
             @NotNull Comparator<? super E> comparator,
             @NotNull CollectionFactory<? super E, Builder, ? extends T> factory
     ) {
-        assert seq != null;
-        assert factory != null;
-
         Objects.requireNonNull(comparator);
 
         Object[] arr = seq.toArray();
         Arrays.sort(arr, ((Comparator<? super Object>) comparator));
 
         return factory.from((E[]) arr);
+    }
+
+    static <E, T, Builder> T reversed(
+            @NotNull ImmutableSeq<? extends E> seq,
+            @NotNull CollectionFactory<? super E, Builder, ? extends T> factory
+    ) {
+        Builder builder = factory.newBuilder();
+        factory.sizeHint(builder, seq);
+        factory.addAllToBuilder(builder, seq.reverseIterator());
+        return factory.build(builder);
     }
 
     static <E, U, T, Builder> T mapIndexed(
@@ -327,6 +347,11 @@ public abstract class AbstractImmutableSeq<@Covariant E> extends AbstractImmutab
     }
 
     @NotNull
+    protected final <To extends ImmutableSeq<E>> To dropLastImpl(int n) {
+        return (To) AbstractImmutableSeq.dropLast(this, n, iterableFactory());
+    }
+
+    @NotNull
     protected final <To extends ImmutableSeq<E>> To dropWhileImpl(@NotNull Predicate<? super E> predicate) {
         return (To) AbstractImmutableSeq.dropWhile(this, predicate, iterableFactory());
     }
@@ -334,6 +359,11 @@ public abstract class AbstractImmutableSeq<@Covariant E> extends AbstractImmutab
     @NotNull
     protected final <To extends ImmutableSeq<E>> To takeImpl(int n) {
         return (To) AbstractImmutableSeq.take(this, n, iterableFactory());
+    }
+
+    @NotNull
+    protected final <To extends ImmutableSeq<E>> To takeLastImpl(int n) {
+        return (To) AbstractImmutableSeq.takeLast(this, n, iterableFactory());
     }
 
     @NotNull
@@ -384,6 +414,11 @@ public abstract class AbstractImmutableSeq<@Covariant E> extends AbstractImmutab
     @NotNull
     protected final <To extends ImmutableSeq<E>> To sortedImpl(@NotNull Comparator<? super E> comparator) {
         return (To) AbstractImmutableSeq.sorted(this, comparator, iterableFactory());
+    }
+
+    @NotNull
+    protected final <To extends ImmutableSeq<E>> To reversedImpl() {
+        return (To) AbstractImmutableSeq.reversed(this, iterableFactory());
     }
 
     @NotNull

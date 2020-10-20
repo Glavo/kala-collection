@@ -270,6 +270,12 @@ public abstract class ImmutableList<@Covariant E> extends AbstractImmutableSeq<E
 
     @NotNull
     @Override
+    public final ImmutableList<E> dropLast(int n) {
+        return dropLastImpl(n);
+    }
+
+    @NotNull
+    @Override
     public final ImmutableList<E> dropWhile(@NotNull Predicate<? super E> predicate) {
         ImmutableList<E> list = this;
         while (list != Nil.INSTANCE && predicate.test(list.head())) {
@@ -282,6 +288,12 @@ public abstract class ImmutableList<@Covariant E> extends AbstractImmutableSeq<E
     @Override
     public final ImmutableList<E> take(int n) {
         return takeImpl(n);
+    }
+
+    @NotNull
+    @Override
+    public final ImmutableList<E> takeLast(int n) {
+        return takeLastImpl(n);
     }
 
     @NotNull
@@ -312,6 +324,18 @@ public abstract class ImmutableList<@Covariant E> extends AbstractImmutableSeq<E
     @Override
     public final ImmutableList<E> sorted(@NotNull Comparator<? super E> comparator) {
         return sortedImpl();
+    }
+
+    @NotNull
+    @Override
+    public final ImmutableList<E> reversed() {
+        ImmutableList<? extends E> list = this;
+        ImmutableList<E> ans = nil();
+        while (list != Nil.INSTANCE) {
+            ans = new ImmutableCons<>(list.head(), ans);
+            list = list.tail();
+        }
+        return ans;
     }
 
     @NotNull

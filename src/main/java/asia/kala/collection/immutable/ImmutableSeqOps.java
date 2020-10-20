@@ -14,9 +14,13 @@ public interface ImmutableSeqOps<E, CC extends ImmutableSeq<?>, COLL extends Imm
 
     @NotNull COLL drop(int n);
 
+    @NotNull COLL dropLast(int n);
+
     @NotNull COLL dropWhile(@NotNull Predicate<? super E> predicate);
 
     @NotNull COLL take(int n);
+
+    @NotNull COLL takeLast(int n);
 
     @NotNull COLL takeWhile(@NotNull Predicate<? super E> predicate);
 
@@ -33,6 +37,8 @@ public interface ImmutableSeqOps<E, CC extends ImmutableSeq<?>, COLL extends Imm
     @NotNull COLL sorted();
 
     @NotNull COLL sorted(@NotNull Comparator<? super E> comparator);
+
+    @NotNull COLL reversed();
 
     @NotNull <U> CC mapIndexed(@NotNull IndexedFunction<? super E, ? extends U> mapper);
 }

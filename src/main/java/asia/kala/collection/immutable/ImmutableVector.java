@@ -386,47 +386,6 @@ public final class ImmutableVector<@Covariant E> extends AbstractImmutableSeq<E>
         return appendedAll(ArraySeq.wrap(postfix));
     }
 
-    @NotNull
-    @Override
-    public final ImmutableVector<E> take(int n) {
-        if (n <= 0) {
-            return empty();
-        }
-        if (n >= length) {
-            return this;
-        }
-
-        final int index = n - 1;
-        final Object root = arePointingToSameLeaf(index, length - 1)
-                ? array
-                : modify(array, depthShift, offset + index,
-                (arr, idx) -> {
-                    int len = Array.getLength(arr);
-                    Object newArr = Array.newInstance(arr.getClass().getComponentType(), len);
-                    System.arraycopy(arr, 0, newArr, 0, idx + 1);
-                    return newArr;
-                },
-                NodeModifier.IDENTITY);
-        return collapsed(root, offset, n, depthShift);
-    }
-
-    @NotNull
-    @Override
-    public final ImmutableVector<E> takeWhile(@NotNull Predicate<? super E> predicate) {
-        if (this.isEmpty()) {
-            return empty();
-        }
-
-        int count = 0;
-        for (E e : this) {
-            if (!predicate.test(e)) {
-                break;
-            }
-            ++count;
-        }
-
-        return take(count);
-    }
 
     @NotNull
     @Override
@@ -454,6 +413,12 @@ public final class ImmutableVector<@Covariant E> extends AbstractImmutableSeq<E>
 
     @NotNull
     @Override
+    public final ImmutableVector<E> dropLast(int n) {
+        return take(size() - n);
+    }
+
+    @NotNull
+    @Override
     public final ImmutableVector<E> dropWhile(@NotNull Predicate<? super E> predicate) {
         if (this.isEmpty()) {
             return empty();
@@ -472,6 +437,54 @@ public final class ImmutableVector<@Covariant E> extends AbstractImmutableSeq<E>
 
     @NotNull
     @Override
+    public final ImmutableVector<E> take(int n) {
+        if (n <= 0) {
+            return empty();
+        }
+        if (n >= length) {
+            return this;
+        }
+
+        final int index = n - 1;
+        final Object root = arePointingToSameLeaf(index, length - 1)
+                ? array
+                : modify(array, depthShift, offset + index,
+                (arr, idx) -> {
+                    int len = Array.getLength(arr);
+                    Object newArr = Array.newInstance(arr.getClass().getComponentType(), len);
+                    System.arraycopy(arr, 0, newArr, 0, idx + 1);
+                    return newArr;
+                },
+                NodeModifier.IDENTITY);
+        return collapsed(root, offset, n, depthShift);
+    }
+
+    @NotNull
+    @Override
+    public final ImmutableVector<E> takeLast(int n) {
+        return drop(size() - n);
+    }
+
+    @NotNull
+    @Override
+    public final ImmutableVector<E> takeWhile(@NotNull Predicate<? super E> predicate) {
+        if (this.isEmpty()) {
+            return empty();
+        }
+
+        int count = 0;
+        for (E e : this) {
+            if (!predicate.test(e)) {
+                break;
+            }
+            ++count;
+        }
+
+        return take(count);
+    }
+
+    @NotNull
+    @Override
     public final ImmutableVector<E> sorted() {
         return sortedImpl();
     }
@@ -480,6 +493,12 @@ public final class ImmutableVector<@Covariant E> extends AbstractImmutableSeq<E>
     @Override
     public final ImmutableVector<E> sorted(@NotNull Comparator<? super E> comparator) {
         return sortedImpl(comparator);
+    }
+
+    @NotNull
+    @Override
+    public final ImmutableVector<E> reversed() {
+        return reversedImpl();
     }
 
     @NotNull

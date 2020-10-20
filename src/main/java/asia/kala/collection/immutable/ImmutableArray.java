@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.IntFunction;
@@ -238,6 +239,12 @@ public final class ImmutableArray<@Covariant E> extends ArraySeq<E>
 
     @NotNull
     @Override
+    public final ImmutableArray<E> dropLast(int n) {
+        return take(size() - n);
+    }
+
+    @NotNull
+    @Override
     public final ImmutableArray<E> dropWhile(@NotNull Predicate<? super E> predicate) {
         int idx = 0;
         while (idx < array.length && predicate.test((E) array[idx])) {
@@ -265,6 +272,12 @@ public final class ImmutableArray<@Covariant E> extends ArraySeq<E>
         System.arraycopy(array, 0, newValues, 0, n);
 
         return new ImmutableArray<>(newValues);
+    }
+
+    @NotNull
+    @Override
+    public final ImmutableArray<E> takeLast(int n) {
+        return drop(size() - n);
     }
 
     @NotNull
@@ -397,6 +410,21 @@ public final class ImmutableArray<@Covariant E> extends ArraySeq<E>
         Object[] newValues = array.clone();
         Arrays.sort(newValues, (Comparator<? super Object>) comparator);
         return new ImmutableArray<>(newValues);
+    }
+
+    @NotNull
+    @Override
+    public final ImmutableArray<E> reversed() {
+        final Object[] array = this.array;
+        final int size = array.length;
+        if (array.length == 0) {
+            return this;
+        }
+        Object[] res = new Object[size];
+        for (int i = 0; i < size; i++) {
+            res[i] = array[size - i - 1];
+        }
+        return new ImmutableArray<>(res);
     }
 
     //endregion

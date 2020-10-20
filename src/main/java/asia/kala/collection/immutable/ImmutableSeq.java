@@ -101,6 +101,12 @@ public interface ImmutableSeq<@Covariant E> extends ImmutableCollection<E>, Seq<
 
     @NotNull
     @Contract(pure = true)
+    default ImmutableSeq<E> dropLast(int n) {
+        return AbstractImmutableSeq.dropLast(this, n, iterableFactory());
+    }
+
+    @NotNull
+    @Contract(pure = true)
     default ImmutableSeq<E> dropWhile(@NotNull Predicate<? super E> predicate) {
         return AbstractImmutableSeq.dropWhile(this, predicate, iterableFactory());
     }
@@ -109,6 +115,11 @@ public interface ImmutableSeq<@Covariant E> extends ImmutableCollection<E>, Seq<
     @Contract(pure = true)
     default ImmutableSeq<E> take(int n) {
         return AbstractImmutableSeq.take(this, n, iterableFactory());
+    }
+
+    @NotNull
+    default ImmutableSeq<E> takeLast(int n) {
+        return AbstractImmutableSeq.takeLast(this, n, iterableFactory());
     }
 
     @NotNull
@@ -170,6 +181,12 @@ public interface ImmutableSeq<@Covariant E> extends ImmutableCollection<E>, Seq<
     @Contract(pure = true)
     default ImmutableSeq<E> sorted(@NotNull Comparator<? super E> comparator) {
         return AbstractImmutableSeq.sorted(this, comparator, iterableFactory());
+    }
+
+    @NotNull
+    @Contract(pure = true)
+    default ImmutableSeq<E> reversed() {
+        return AbstractImmutableSeq.reversed(this, iterableFactory());
     }
 
     @NotNull
