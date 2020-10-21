@@ -22,9 +22,6 @@ final class SetViews {
         private final Predicate<? super E> predicate;
 
         public Filter(@NotNull View<E> source, @NotNull Predicate<? super E> predicate) {
-            assert source != null;
-            assert predicate != null;
-
             this.source = source;
             this.predicate = predicate;
         }

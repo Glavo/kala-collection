@@ -37,8 +37,9 @@ public interface Collection<@Covariant E> extends Traversable<E>, Equals {
         final int knownSize = knownSize();
         if (knownSize != 0) {
             return Spliterators.spliterator(iterator(), knownSize, 0);
+        } else {
+            return Spliterators.spliteratorUnknownSize(iterator(), 0);
         }
-        return Spliterators.spliterator(iterator(), size(), 0);
     }
 
     @NotNull

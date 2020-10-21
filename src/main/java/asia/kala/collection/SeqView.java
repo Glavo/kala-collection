@@ -1,5 +1,6 @@
 package asia.kala.collection;
 
+import asia.kala.Tuple;
 import asia.kala.Tuple2;
 import asia.kala.annotations.Covariant;
 import asia.kala.collection.internal.CollectionHelper;
@@ -172,7 +173,7 @@ public interface SeqView<@Covariant E> extends Seq<E>, View<E> {
     @NotNull
     @Override
     default Tuple2<? extends SeqView<E>, ? extends SeqView<E>> span(@NotNull Predicate<? super E> predicate) {
-        throw new UnsupportedOperationException(); // TODO
+        return Tuple.of(takeWhile(predicate), dropWhile(predicate));
     }
 
     //endregion
